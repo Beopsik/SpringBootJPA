@@ -8,12 +8,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.sql.DataSource;
-
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.*;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
@@ -30,11 +27,17 @@ public class AccountRepositoryTest {
 
     @Test
     public void di() throws SQLException {
-        try (Connection connection=dataSource.getConnection()){
-            DatabaseMetaData metaData = dataSource.getConnection().getMetaData();
-            System.out.println(metaData.getURL());
-            System.out.println(metaData.getDriverName());
-            System.out.println(metaData.getUserName());
-        }
+        Account account=new Account();
+        account.setUsername("beobsik");
+        account.setPassword("pass");
+
+        Account newAccount=accountRepository.save(account);
+        assertThat(newAccount).isNotNull();
+
+        Account existAccount=accountRepository.findByUsername(newAccount.getUsername());
+        assertThat(existAccount).isNotNull();
+
+        Account nonExistAccount=accountRepository.findByUsername("keesun");
+        assertThat(nonExistAccount).isNull();
     }
 }
